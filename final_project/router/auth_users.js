@@ -14,7 +14,7 @@ const authenticatedUser = (username,password)=>{ //returns boolean
   return user && user.password === password
 }
 
-//only registered users can login
+// only registered users can login
 regd_users.post("/login", (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
@@ -31,7 +31,7 @@ regd_users.post("/login", (req, res) => {
     }
 });
 
-// Add a book review
+// add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
   let isbn = req.params.isbn;
   let review = req.body.review;
@@ -49,10 +49,25 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   else{
     return res.status(404).json({message: "No book found with ISBN "+isbn});
   }
+})
 
+// delete book review
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+    let isbn = req.params.isbn;
+    let username = req.session.authorization.username;
+    if(books[isbn]){
+        if(books[isbn].reviews[username]){
+            delete books[isbn].reviews[username];
+            return res.status(200).json({ message: "Review deleted successfully" });
+        }
+        else {
+            return res.status(404).json({message: "No review found for ISBN "+isbn});
+      }
+    }
+    else{
+      return res.status(404).json({message: "No book found with ISBN "+isbn});
+    }
 
-
-    //    return res.status(200).send(`The review for the book with ISBN ${isbn} has been added / updated`);
 })
 
 module.exports.authenticated = regd_users;
